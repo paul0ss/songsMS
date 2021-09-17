@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:mvc="http://www.springframework.org/schema/mvc"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="
+        http://www.springframework.org/schema/beans     
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/mvc 
+        http://www.springframework.org/schema/mvc/spring-mvc.xsd
+        http://www.springframework.org/schema/context 
+        http://www.springframework.org/schema/context/spring-context.xsd">
+ 
+    <!--  explicit support for annotation-driven MVC controllers 
+         e.g., @RequestMapping, @Controller -->
+    <mvc:annotation-driven />
+    
+    <!-- enable auto scanning feature: 
+         base-package: package, wo sich die Controller befinden. 
+         Spring wird dieses Vezeichnis scannen und die Beans, 
+         die, z.B., mit @RestController annotiert sind, finden und registrieren. -->
+    <context:component-scan base-package="htwb.ai.SongsSonglistsService" />
+    
+    <!-- Es kann nur eine Implementierung von IUserDAO angegeben werden:-->   
+    <!-- <bean id="userDAO" class="de.htw.ai.kbe.dao.OnTheFlyUserDAO"/> -->  
+    
+    <bean id="userDAO" class="htwb.ai.SongsSonglistsService.dao.DBUserDAO">
+        <property name="persistenceUnit" value="songDB"></property>
+    </bean>
+    
+    <bean id="songDAO" class="htwb.ai.SongsSonglistsService.dao.DBSongDAO">
+        <property name="persistenceUnit" value="songDB"></property>
+    </bean>
+    
+    <bean id="songlistDAO" class="htwb.ai.SongsSonglistsService.dao.DBSonglistDAO">
+        <property name="persistenceUnit" value="songDB"></property>
+    </bean>
+    
+    <!-- Wir nutzen Jackson: -->
+    <bean id="jsonMessageConverter"
+        class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter" />   
+</beans>
