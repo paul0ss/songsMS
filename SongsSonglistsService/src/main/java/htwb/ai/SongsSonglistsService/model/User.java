@@ -28,6 +28,15 @@ public class User {
 	public void setSonglists(Set<Songlist> songlists) {
 		this.songlists = songlists;
 	}
+	
+	public String toJSONString() {
+        return "{" + System.lineSeparator() + 
+        		"    " + "\"userId\": " + "\"" + userId + "\"" + "," + System.lineSeparator() + 
+        		"    " + "\"password\": " + "\"" + "" + "\"" + "," + System.lineSeparator() + 
+        		"    " + "\"firstname\": " + "\"" + firstName + "\"" + "," + System.lineSeparator() + 
+        		"    " + "\"lastname\": " + "\"" + lastName + "\"" + System.lineSeparator() + 
+        		"}";
+    }
 
 	@Override
     public String toString() {

@@ -1,13 +1,8 @@
-/Users/lyubar/workspace/songsMS/SongsSonglistsService/src/main/java/htwb/ai/SongsSonglistsService/dao/ISonglistDAO.java
+/Users/lyubar/workspace/songsMS/SongsSonglistsService/src/main/java/htwb/ai/SongsSonglistsService/repository/SongRepository.java
+/Users/lyubar/workspace/songsMS/SongsSonglistsService/src/main/java/htwb/ai/SongsSonglistsService/repository/SonglistRepository.java
 /Users/lyubar/workspace/songsMS/SongsSonglistsService/src/main/java/htwb/ai/SongsSonglistsService/controller/SongControllerDI.java
-/Users/lyubar/workspace/songsMS/SongsSonglistsService/src/main/java/htwb/ai/SongsSonglistsService/dao/DBSonglistDAO.java
-/Users/lyubar/workspace/songsMS/SongsSonglistsService/src/main/java/htwb/ai/SongsSonglistsService/model/User.java
-/Users/lyubar/workspace/songsMS/SongsSonglistsService/src/main/java/htwb/ai/SongsSonglistsService/dao/DBSongDAO.java
-/Users/lyubar/workspace/songsMS/SongsSonglistsService/src/main/java/htwb/ai/SongsSonglistsService/controller/UserControllerDI.java
-/Users/lyubar/workspace/songsMS/SongsSonglistsService/src/main/java/htwb/ai/SongsSonglistsService/SongsSonglistsServiceApplication.java
-/Users/lyubar/workspace/songsMS/SongsSonglistsService/src/main/java/htwb/ai/SongsSonglistsService/dao/ISongDAO.java
-/Users/lyubar/workspace/songsMS/SongsSonglistsService/src/main/java/htwb/ai/SongsSonglistsService/dao/DBUserDAO.java
 /Users/lyubar/workspace/songsMS/SongsSonglistsService/src/main/java/htwb/ai/SongsSonglistsService/model/Song.java
+/Users/lyubar/workspace/songsMS/SongsSonglistsService/src/main/java/htwb/ai/SongsSonglistsService/model/User.java
 /Users/lyubar/workspace/songsMS/SongsSonglistsService/src/main/java/htwb/ai/SongsSonglistsService/model/Songlist.java
-/Users/lyubar/workspace/songsMS/SongsSonglistsService/src/main/java/htwb/ai/SongsSonglistsService/dao/IUserDAO.java
+/Users/lyubar/workspace/songsMS/SongsSonglistsService/src/main/java/htwb/ai/SongsSonglistsService/SongsSonglistsServiceApplication.java
 /Users/lyubar/workspace/songsMS/SongsSonglistsService/src/main/java/htwb/ai/SongsSonglistsService/controller/SonglistControllerDI.java

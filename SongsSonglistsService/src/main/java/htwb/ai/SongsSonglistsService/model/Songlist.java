@@ -17,9 +17,12 @@ public class Songlist {
     @Column(name="id", unique=true)
     private Integer id;
 
-    @ManyToOne
+//    @ManyToOne
+//    @JoinColumn(name="ownerId")
+//    private User ownerId;
+    //@ManyToOne
     @JoinColumn(name="ownerId")
-    private User ownerId;
+    private String ownerId;
 
     @Column(name="name")
     private String name;
@@ -101,6 +104,29 @@ public class Songlist {
                 '}';
     }
     
+//    public String toStringXML() {
+//    	String songs = "";
+//    	for(Song s : songList) {
+//    		songs += s.toStringXML() + System.lineSeparator();
+//    	}
+//    	return "<songlist>" + System.lineSeparator() + 
+//    			"	<id>" + id + "</id>" + System.lineSeparator() + 
+//    			"	<ownerId>" + ownerId.getUserId() + "</ownerId>" + System.lineSeparator() + 
+//				"	<name>" + name + "</name>" + System.lineSeparator() + 
+//				"	<private>" + isPrivate + "</private>" + System.lineSeparator() + 
+//				"	<songs>" + System.lineSeparator() +
+//				"	" + songs + 
+//				"	</songs>" + System.lineSeparator() +
+//				"</songlist>";
+//    }
+//
+//	public User getOwnerId() {
+//		return ownerId;
+//	}
+//
+//	public void setOwnerId(User ownerId) {
+//		this.ownerId = ownerId;
+//	}
     public String toStringXML() {
     	String songs = "";
     	for(Song s : songList) {
@@ -108,7 +134,7 @@ public class Songlist {
     	}
     	return "<songlist>" + System.lineSeparator() + 
     			"	<id>" + id + "</id>" + System.lineSeparator() + 
-    			"	<ownerId>" + ownerId.getUserId() + "</ownerId>" + System.lineSeparator() + 
+    			"	<ownerId>" + ownerId + "</ownerId>" + System.lineSeparator() + 
 				"	<name>" + name + "</name>" + System.lineSeparator() + 
 				"	<private>" + isPrivate + "</private>" + System.lineSeparator() + 
 				"	<songs>" + System.lineSeparator() +
@@ -117,11 +143,11 @@ public class Songlist {
 				"</songlist>";
     }
 
-	public User getOwnerId() {
+	public String getOwnerId() {
 		return ownerId;
 	}
 
-	public void setOwnerId(User ownerId) {
+	public void setOwnerId(String ownerId) {
 		this.ownerId = ownerId;
 	}
 }

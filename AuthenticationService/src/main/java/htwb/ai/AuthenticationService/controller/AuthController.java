@@ -6,6 +6,7 @@ import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,18 +26,18 @@ import org.springframework.web.bind.annotation.RestController;
 import htwb.ai.AuthenticationService.dao.DBUserDAO;
 import htwb.ai.AuthenticationService.dao.IUserDAO;
 import htwb.ai.AuthenticationService.model.User;
+import htwb.ai.AuthenticationService.repository.UserRepository;
 
 @RestController
 @RequestMapping(value="/auth")
 public class AuthController {
     
-	@Autowired
-    private IUserDAO userDAO;
+	private final UserRepository ur;
 	
 	private static HashMap<String, String> authTokens = new HashMap<String, String>();
     
-    public AuthController (IUserDAO uDAO) {
-        this.userDAO = uDAO;
+    public AuthController (UserRepository repository) {
+        ur = repository;
     }
     
     @PostMapping(produces = "text/plain", consumes = "application/json")
@@ -50,10 +51,13 @@ public class AuthController {
                         HttpStatus.UNAUTHORIZED);
             }
         
-        System.out.println("-------------------------------------");
-        System.out.println(user.toString());
-        //get User from Database
-        User DBuser = userDAO.getUserByUserId(user.getUserId());
+        Optional<User> result = ur.findByUserId(user.getUserId());
+        User DBuser = null;
+        if(result.isEmpty()) {
+        	DBuser = null;
+        }else {
+        	DBuser = result.get();
+        }
         
         // If the user exists in the DB
         if(DBuser != null) {
@@ -72,6 +76,51 @@ public class AuthController {
         }
     }
     
+    /**
+     * Checks if a received token belongs to any user in the system.
+     * @param token for logging in the User
+     * @return
+     */
+    @GetMapping(value="/{token}")
+    public ResponseEntity<String> checkAuth(@PathVariable (value="token") String token){
+    	if(checkToken(token)) {
+    		return new ResponseEntity<String> ("Authorized user", HttpStatus.OK);
+    	}else {
+    		return new ResponseEntity<String> ("Wrong token", HttpStatus.UNAUTHORIZED);
+    	}
+    
+    }
+    
+    /**
+     * This GET-Requests are supposed to come only from intern Services.
+     * They retrieve the user sensitive information based on the recieved token.
+     * Such information will be used in other Services.
+     * Here we defined a Service-specific token, to protect the sensitive data from
+     * unpermitted access.
+     * @param token for logging in the User
+     * @param headers contains a specific key-value pair to authenticate the intern Service
+     * @return the userspecifi information
+     */
+    @GetMapping(value="/getUser/{token}")
+    public ResponseEntity<String> getUserByToken(@PathVariable (value="token") String token,
+    		@RequestHeader HttpHeaders headers){
+    	String serviceToken = "fuiwei72r723if";
+    	String serviceTokenRecieved = headers.getFirst("ServiceToken");
+    	if(serviceTokenRecieved == null) {
+    		return new ResponseEntity<String> ("Bad request!", HttpStatus.BAD_REQUEST);
+    	}
+    	if(!serviceToken.equals(serviceTokenRecieved)) {
+    		return new ResponseEntity<String> ("Request is not permitted", HttpStatus.FORBIDDEN);
+    	}
+    	String userId = getUserIdByToken(token);
+    	if(userId == null) {
+    		return new ResponseEntity<String> ("User doesnt exist", HttpStatus.NOT_FOUND);
+    	}
+    	User user = ur.findByUserId(userId).get();
+    	return new ResponseEntity<String> (user.toJSONString(), HttpStatus.OK);
+    }
+    
+    
     private static <K, V> K getKey(Map<K, V> map, V value) {
         for (Entry<K, V> entry : map.entrySet()) {
             if (entry.getValue().equals(value)) {
@@ -82,7 +131,7 @@ public class AuthController {
     }
     
     //Überprüft ob der Token existiert
-    public static boolean checkToken(String token) {
+    private boolean checkToken(String token) {
     	if(token != null && authTokens.containsValue(token)) {
         	return true;
         }else {
@@ -90,7 +139,10 @@ public class AuthController {
         }
     }
     
-    public static String getUserIdByToken(String token) {
+    private String getUserIdByToken(String token) {
+    	if(token == null) {
+    		return null;
+    	}
     	return (String) getKey(authTokens, token);
     }
     
@@ -98,6 +150,11 @@ public class AuthController {
 //    	userDAO.getUserByUserId(userId);
 //    }
     
+    /**
+     * Generates a token for user authentification
+     * @param userId
+     * @return a token in a String-format
+     */
     private String tokenGen(String userId) {
     	int leftLimit = 48; // numeral '0'
         int rightLimit = 122; // letter 'z'
@@ -116,8 +173,8 @@ public class AuthController {
         	authTokens.put(userId, generatedToken);
         	
         	return generatedToken;
-        	
         }
 
     }
+    
 }

@@ -10,7 +10,7 @@ import org.springframework.context.annotation.ImportResource;
  *
  */
 @SpringBootApplication
-@ImportResource("classpath:songsSongslistsService-servlet.xml")
+//@ImportResource("classpath:songsSongslistsService-servlet.xml")
 public class SongsSonglistsServiceApplication 
 {
     public static void main( String[] args )

@@ -9,7 +9,7 @@ import org.springframework.context.annotation.ImportResource;
  *
  */
 @SpringBootApplication
-@ImportResource("classpath:authentication-servlet.xml")
+//@ImportResource("classpath:authentication-servlet.xml")
 public class AuthenticationServiceApplication 
 {
     public static void main( String[] args )

@@ -4,6 +4,8 @@ import java.util.Set;
 
 import javax.persistence.*;
 
+
+
 @Entity
 @Table(name="user")
 public class User {
@@ -32,6 +34,16 @@ public class User {
 	@Override
     public String toString() {
         return "User [userId=" + userId + ", firstname=" + firstName + ", lastname=" + lastName + "]";
+    }
+	
+	
+    public String toJSONString() {
+        return "{" + System.lineSeparator() + 
+        		"    " + "\"userId\": " + "\"" + userId + "\"" + "," + System.lineSeparator() + 
+        		"    " + "\"password\": " + "\"" + "" + "\"" + "," + System.lineSeparator() + 
+        		"    " + "\"firstname\": " + "\"" + firstName + "\"" + "," + System.lineSeparator() + 
+        		"    " + "\"lastname\": " + "\"" + lastName + "\"" + System.lineSeparator() + 
+        		"}";
     }
     
     public User() {}
