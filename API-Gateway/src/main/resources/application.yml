@@ -12,10 +12,10 @@ spring:
    cloud:
       gateway:
          routes:
-         - id: thirdService
-           uri: lb://thirdService
+         - id: lyricsService
+           uri: lb://lyricsService
            predicates:
-           - Path=/thirdService/**
+           - Path=/lyrics/**
          - id: authenticationService
            uri: lb://authenticationService
            predicates:
