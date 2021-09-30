@@ -1,8 +1,14 @@
+/Users/lyubar/workspace/songsMS/AuthenticationService/src/main/java/htwb/ai/AuthenticationService/Exception/UnathorizedException.java
+/Users/lyubar/workspace/songsMS/AuthenticationService/src/main/java/htwb/ai/AuthenticationService/controller/AuthController.java
+/Users/lyubar/workspace/songsMS/AuthenticationService/src/main/java/htwb/ai/AuthenticationService/model/Song.java
+/Users/lyubar/workspace/songsMS/AuthenticationService/src/main/java/htwb/ai/AuthenticationService/AuthenticationServiceApplication.java
 /Users/lyubar/workspace/songsMS/AuthenticationService/src/main/java/htwb/ai/AuthenticationService/model/Songlist.java
 /Users/lyubar/workspace/songsMS/AuthenticationService/src/main/java/htwb/ai/AuthenticationService/model/User.java
 /Users/lyubar/workspace/songsMS/AuthenticationService/src/main/java/htwb/ai/AuthenticationService/repository/UserRepository.java
-/Users/lyubar/workspace/songsMS/AuthenticationService/src/main/java/htwb/ai/AuthenticationService/controller/AuthController.java
-/Users/lyubar/workspace/songsMS/AuthenticationService/src/main/java/htwb/ai/AuthenticationService/model/Song.java
 /Users/lyubar/workspace/songsMS/AuthenticationService/src/main/java/htwb/ai/AuthenticationService/dao/IUserDAO.java
 /Users/lyubar/workspace/songsMS/AuthenticationService/src/main/java/htwb/ai/AuthenticationService/dao/DBUserDAO.java
-/Users/lyubar/workspace/songsMS/AuthenticationService/src/main/java/htwb/ai/AuthenticationService/AuthenticationServiceApplication.java
+/Users/lyubar/workspace/songsMS/AuthenticationService/src/main/java/htwb/ai/AuthenticationService/Exception/NotFoundException.java
+/Users/lyubar/workspace/songsMS/AuthenticationService/src/main/java/htwb/ai/AuthenticationService/dto/LoginRequest.java
+/Users/lyubar/workspace/songsMS/AuthenticationService/src/main/java/htwb/ai/AuthenticationService/Exception/ForbiddenException.java
+/Users/lyubar/workspace/songsMS/AuthenticationService/src/main/java/htwb/ai/AuthenticationService/service/AuthenticationService.java
+/Users/lyubar/workspace/songsMS/AuthenticationService/src/main/java/htwb/ai/AuthenticationService/Exception/BadRequestException.java

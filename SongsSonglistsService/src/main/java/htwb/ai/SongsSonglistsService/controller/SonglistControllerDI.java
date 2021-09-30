@@ -40,7 +40,7 @@ import htwb.ai.SongsSonglistsService.model.*;
 import htwb.ai.SongsSonglistsService.repository.SonglistRepository;
 
 @RestController
-@RequestMapping(value="/songs/playlist")
+@RequestMapping(value="/songs/playlists")
 public class SonglistControllerDI {
 		
 		private SonglistRepository repository;
@@ -59,7 +59,7 @@ public class SonglistControllerDI {
 	    //GET http://localhost:8083/songlist
 	    @GetMapping(produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
 	    public ResponseEntity<String> getSongs (@RequestHeader("Accept") String acceptType, 
-	    		@RequestParam(value="userId", required=false) String userId,
+	    		@RequestParam(value="userId", required=true) String userId,
 	    		@RequestHeader(value="Authorization", required=true) String token) throws IOException {
 	    	
 	    	List<Songlist> lists = null;
@@ -74,7 +74,7 @@ public class SonglistControllerDI {
                         HttpStatus.UNAUTHORIZED);
 	    	//User is authorized
 	    	}else{
-	    		
+	    		System.out.println("User: " +user.toJSONString());
 	    		//User requests its own playlist
 	    		if(user.getUserId().equals(userId)) {
 	    			
@@ -138,19 +138,13 @@ public class SonglistControllerDI {
 	    		String userIdFromRequest = user.getUserId();
 	    		
 	    		//Get the matching songlist by ID
-	    		Songlist list = null;
-    			list = repository.findById(id).get();
-    			if(list == null) { // DOESNT WORK!!!
-    				return new ResponseEntity<String>("Songlist doesnt exist", 
-                            HttpStatus.NOT_FOUND);
-    			}
-	    		
-	    		//If the list doesnt exist
-//	    		if(list == null) {
-//	    			return new ResponseEntity<String>("Songlist doesnt exist!", 
-//	                        HttpStatus.NOT_FOUND);
-//	    		}
-//	    		
+	    		Optional<Songlist> opt = repository.findById(id);
+	    		if(opt.equals(Optional.empty())) {
+	    			return new ResponseEntity<String>("Songlist doesnt exist", 
+                            HttpStatus.NOT_FOUND);	
+	    		}
+	    		Songlist list = opt.get();
+	    		   		
 	    		//Get the listowner
 	    		String listOwner = list.getOwnerId();
 	    		if(listOwner == null) {
@@ -203,7 +197,7 @@ public class SonglistControllerDI {
 	     * - Received Data must be in JSON-Format
 	     * - All songs contained in the songlist have to be present in the DB
 	     * 
-	     * URL: http://localhost:8080/songlist
+	     * URL: http://localhost:8080/songs/playlists
 	     * @param songlist
 	     * @param token
 	     * @return:
@@ -232,9 +226,11 @@ public class SonglistControllerDI {
 	        	
 	        	//Retrieve the userID from the user
 	        	String userId = user.getUserId();
+	        	System.out.println("UserID: " + userId);
 	        	
 	        	//Set the owner of the songlist
 	        	songlist.setOwnerId(userId);
+	        	System.out.println("Songlist to insert: " + songlist.toStringXML());
 	        	
 	        	//Persist the songlist in the DB
 	        	Songlist savedList = repository.save(songlist);
@@ -244,9 +240,10 @@ public class SonglistControllerDI {
 	            
 	            //Setting the Location-Header
 	            HttpHeaders header = new HttpHeaders();
-	            header.set("Location", "/songlist/" + id);
+	            header.set("Location", "http://localhost:8080/songs/playlists" + id);
 	            return new ResponseEntity<String>("Id of the added songlist is: " + id, header, HttpStatus.CREATED);
 	        }catch(Exception ex){
+	        	ex.printStackTrace();
 	            return new ResponseEntity<String>("Songlist was not created! All songs have to exist in the DB!", HttpStatus.BAD_REQUEST);
 	        }
 	        //If the request-body is empty
@@ -326,7 +323,7 @@ public class SonglistControllerDI {
 	     * - Authorization-Header contains a valid token
 	     * - The songlist belongs to the user
 	     * 
-	     * URL: http://localhost:8080/songlist/{id}
+	     * URL: http://localhost:8080/songs/playlists{id}
 	     * @param id of the playlist to delete
 	     * @param token to validate the user
 	     * @return
@@ -336,8 +333,6 @@ public class SonglistControllerDI {
 		          @PathVariable (value="id") Integer id,
 		          @RequestHeader(value="Authorization", required=true) String token){
 	    	
-	    	Songlist list = null;
-	    	
 	    	//Retrieve user from Authentication-Service by token
 	    	User user = getUserByToken(token);
 	    	
@@ -345,6 +340,8 @@ public class SonglistControllerDI {
 	    	if(user == null) {
 	    		return new ResponseEntity<String>("Unathorized! Bad token!", HttpStatus.UNAUTHORIZED);
 	    	}
+	    	
+	    	Songlist list = null;
 	    	
 	    	//get userID from User
     		String userId = user.getUserId();
@@ -402,7 +399,7 @@ public class SonglistControllerDI {
 	    	//URL for the Request on Auth-Service
 	    	String url = "http://localhost:8082/auth/getUser/" + token;
 	    	
-	    	//Sets the Header for Authentification of the Service
+	    	//Sets the Header for Authentication of the Service
 	    	HttpHeaders headers = new HttpHeaders();
 	    	headers.set("ServiceToken", SERVICETOKEN);
 	    	
@@ -441,6 +438,12 @@ public class SonglistControllerDI {
 	    	}else {
 	    		return false;
 	    	}
+//	    	System.out.println("Song from DB with" + s.getId() + ": " + response.getBody());
+//	    	if(s.equals(response.getBody())) {
+//	    		return true;
+//	    	}else {
+//	    		return false;
+//	    	}
 	    }
 	    
 }

@@ -150,7 +150,7 @@ public class SongControllerDI {
     //POST http://localhost:8083/songs
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> addSong (@RequestBody Song song,
-    		@RequestHeader(value="Authorization") String token){
+    		@RequestHeader(value="Authorization", required=true) String token){
     	
 	        
     	//If the request-body is a valid data
@@ -202,7 +202,7 @@ public class SongControllerDI {
      */
     @PutMapping (value= "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> putSong (@PathVariable (value="id") Integer id,
-    		@RequestBody Song song, @RequestHeader("Authorization") String token){
+    		@RequestBody Song song, @RequestHeader(value="Authorization", required=true) String token){
     	
     	//Check the Authorization
     	boolean authorized = this.checkToken(token);
@@ -259,16 +259,18 @@ public class SongControllerDI {
       	}
             try {
             	
-            	//If the songs exists in the DB
-            	Song reqSong = repository.findById(id).get();
-                if(reqSong != null) {
-                	
-                	//Delete the song
-                	repository.delete(reqSong);
-                	return new ResponseEntity<String>("Song was deleted", HttpStatus.NO_CONTENT);
-                }else{
-                    return new ResponseEntity<String>("Song doesnt exist", HttpStatus.NOT_FOUND);
-                }
+            	//Get the song from the DB
+            	Optional<Song> op = repository.findById(id);
+            	
+            	//If the song doesnt exist
+            	if(op.equals(Optional.empty())) {
+            		return new ResponseEntity<String>("Song doesnt exist", HttpStatus.NOT_FOUND);
+            	}
+            	Song reqSong = op.get();
+            	
+            	//Delete the song
+            	repository.delete(reqSong);
+            	return new ResponseEntity<String>("Song was deleted", HttpStatus.NO_CONTENT);
             }catch(Exception ex){
                 return new ResponseEntity<String>("Song was not deleted", HttpStatus.BAD_REQUEST);
             }

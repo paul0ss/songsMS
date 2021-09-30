@@ -1,0 +1,23 @@
+{
+	"id": 0,
+	"isPrivate": true,
+	"ownerId": "mmuster",
+	"name": "MaximesPrivate",
+	"songList": [
+		{
+			"id": 5,
+			"title": "We Built This City",
+			"artist": "Starship",
+			"label": "Grunt/RCA",
+			"released": 1985
+		},
+		{
+			"id": 4,
+			"title": "Sussudio",
+			"artist": "Phil Collins",
+			"label": "Virgin",
+			"released": 1985
+		}
+	]
+}
+ 

@@ -10,9 +10,9 @@
   <modules>
     <module>API-Gateway</module>
     <module>Service-Registry</module>
-    <module>testModule</module>
     <module>AuthenticationService</module>
     <module>SongsSonglistsService</module>
+  	<module>lyricsService</module>
   </modules>
   
   <properties>

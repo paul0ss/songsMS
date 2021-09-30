@@ -1,0 +1,13 @@
+{
+    "isPrivate": true,
+    "name": "ElenasPrivateBAD",
+    "songList": [
+        {
+            "id": 1111,
+            "title": "Stop the Feeling",
+            "artist": "Justin Timberlake",
+            "label": "Trolls",
+            "released": 2016
+        }
+    ]
+} 

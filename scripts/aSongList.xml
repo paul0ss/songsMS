@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<songList>
+	<isPrivate>false</isPrivate>
+	<name>MaximesPublic</name>
+	<song>
+        <id>9</id>
+        <title>My Humps</title>
+        <artist>Black Eyed Peas</artist>
+        <label>Universal Music</label>
+        <released>2005</released>
+    </song>
+	<song>
+		<id>8</id>
+		<title>Who Let the Dogs Out?</title>
+		<artist>Baha Men</artist>
+		<label>S-Curve</label>
+		<released>2000</released>
+	</song>
+</songList> 

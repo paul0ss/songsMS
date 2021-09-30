@@ -20,8 +20,9 @@ public class Songlist {
 //    @ManyToOne
 //    @JoinColumn(name="ownerId")
 //    private User ownerId;
-    //@ManyToOne
-    @JoinColumn(name="ownerId")
+//    @ManyToOne
+//    @JoinColumn(name="ownerId")
+    @Column(name="ownerId")
     private String ownerId;
 
     @Column(name="name")

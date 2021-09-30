@@ -1,7 +1,6 @@
-htwb/ai/AuthenticationService/AuthenticationServiceApplication.class
 htwb/ai/AuthenticationService/dao/DBUserDAO.class
 htwb/ai/AuthenticationService/model/Songlist.class
 htwb/ai/AuthenticationService/dao/IUserDAO.class
 htwb/ai/AuthenticationService/model/User.class
+htwb/ai/AuthenticationService/repository/UserRepository.class
 htwb/ai/AuthenticationService/model/Song.class
-htwb/ai/AuthenticationService/controller/AuthController.class

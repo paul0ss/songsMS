@@ -1,0 +1,21 @@
+{
+	"isPrivate": false,
+	"name": "MaximesPublic",
+	"songList": [
+		{
+			"id": 9,
+			"title": "Private Show",
+			"artist": "Britney Spears",
+			"label": "Glory",
+			"released": "2016"
+		},
+		{
+			"id": 10,
+			"title": "7 Years",
+			"artist": "Lukas Graham",
+			"label": "Lukas Graham (Blue Album)",
+			"released": "2015"
+		}
+	]
+}
+ 

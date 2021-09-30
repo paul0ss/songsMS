@@ -1,0 +1,12 @@
+spring:
+   main:
+      allow-bean-definition-overriding: true
+   application:
+      name: lyricsService
+   
+server:
+   port: 8081
+eureka:
+   client:
+      serviceUrl:
+         defaultZone: ${EUREKA_URI:http://localhost:8787/eureka}
