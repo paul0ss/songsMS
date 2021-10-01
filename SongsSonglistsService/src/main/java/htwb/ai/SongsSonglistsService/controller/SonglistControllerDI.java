@@ -36,24 +36,23 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import htwb.ai.SongsSonglistsService.exception.BadRequestException;
+import htwb.ai.SongsSonglistsService.exception.ForbiddenException;
+import htwb.ai.SongsSonglistsService.exception.NotFoundException;
+import htwb.ai.SongsSonglistsService.exception.UnathorizedException;
 import htwb.ai.SongsSonglistsService.model.*;
 import htwb.ai.SongsSonglistsService.repository.SonglistRepository;
+import htwb.ai.SongsSonglistsService.service.SonglistsService;
 
 @RestController
 @RequestMapping(value="/songs/playlists")
 public class SonglistControllerDI {
 		
-		private SonglistRepository repository;
+		private final SonglistsService songlistsService;
 		
-		private static HashMap<String, String> authTokens = new HashMap<String, String>();
-	    
-		private static final String SERVICETOKEN = "fuiwei72r723if";
 		
-		private final RestTemplate restTemplate;
-		
-		public SonglistControllerDI(SonglistRepository songlistRepository) {
-			repository = songlistRepository;
-			restTemplate = new RestTemplate();
+		public SonglistControllerDI(SonglistsService songlistsService) {
+			this.songlistsService = songlistsService;
 		}
 		
 	    //GET http://localhost:8083/songlist
@@ -62,64 +61,27 @@ public class SonglistControllerDI {
 	    		@RequestParam(value="userId", required=true) String userId,
 	    		@RequestHeader(value="Authorization", required=true) String token) throws IOException {
 	    	
-	    	List<Songlist> lists = null;
+	    	List<Songlist> lists;
 	    	
-	    	//Retrieves a user by token from Authentication-Service
-	    	User user = getUserByToken(token);
-
-	    	//If token doesnt match any user
-	    	if(user == null) {
-	    		
-	    		return new ResponseEntity<String>("Wrong token", 
-                        HttpStatus.UNAUTHORIZED);
-	    	//User is authorized
-	    	}else{
-	    		System.out.println("User: " +user.toJSONString());
-	    		//User requests its own playlist
-	    		if(user.getUserId().equals(userId)) {
-	    			
-	    			//Get all songslists of this user
-	    			lists = repository.findAllByOwnerId(userId);
-	    			
-	    		//User requests another users playlist
-	    		}else {
-	    			try {
-	    				lists = repository.findAllPublicByOwnerId(userId);
-	    			}catch(NullPointerException npe) {
-	    				return new ResponseEntity<String>("Playlist doesnt exist", 
-	                            HttpStatus.NOT_FOUND);
-	    			}
-	    		}
-	    		
-	    		//Generating XML or JSON Output
-	    		if(acceptType.equals(MediaType.APPLICATION_XML_VALUE)) {
-	            	MultiValueMap mvm = new HttpHeaders();
-	                mvm.add("Content-Type", "application/xml");
-	                String outputXML = "<songlists>" + System.lineSeparator();
-	                for (Songlist l : lists) {
-	                    outputXML += l.toStringXML();
-	                }
-	                outputXML += "</songlists>";
-	                System.out.println(outputXML);
-	                return new ResponseEntity<String>(outputXML, mvm, HttpStatus.OK);
-	            }else{
-	            	MultiValueMap mvm = new HttpHeaders();
-	                mvm.add("Content-Type", "application/json");
-	                String outputJSON = "{" + System.lineSeparator();
-	                List<Songlist> listOfSonglists = new ArrayList<Songlist>();
-	                listOfSonglists.addAll(lists);
-	                for(int i = 0; i < listOfSonglists.size(); i++) {
-	                	Songlist s = listOfSonglists.get(i);
-	                	if(i != listOfSonglists.size() - 1) {
-	                		outputJSON += s.toString() + "," + System.lineSeparator();
-	                	}else {
-	                		outputJSON += s.toString() + System.lineSeparator();
-	                	}
-	                }
-	                outputJSON += System.lineSeparator() + "}";
-	                return new ResponseEntity<String>(outputJSON.toString(), mvm, HttpStatus.OK);
-	            }
-	    	}
+			try {
+				lists = songlistsService.getSonglist(token, userId);
+			} catch (NotFoundException nfe) {
+				return new ResponseEntity<String>(nfe.getMessage(), HttpStatus.NOT_FOUND);
+			} catch (UnathorizedException ue) {
+				return new ResponseEntity<String>(ue.getMessage(), HttpStatus.UNAUTHORIZED);
+			}
+	    	
+	    	MultiValueMap mvm = new HttpHeaders();
+	    	
+    		//Generating XML or JSON Output
+    		if(acceptType.equals(MediaType.APPLICATION_XML_VALUE)) {
+                mvm.add("Content-Type", "application/xml");
+                return new ResponseEntity<String>(songlistsService.songlistsToXML(lists), mvm, HttpStatus.OK);
+            }else{
+                mvm.add("Content-Type", "application/json");
+                return new ResponseEntity<String>(songlistsService.songlistsToJSON(lists), mvm, HttpStatus.OK);
+            }
+	    	
 	    }
 	    
 	    //GET http://localhost:8083/songlist/{id}
@@ -129,64 +91,28 @@ public class SonglistControllerDI {
 		          @RequestHeader("Accept") String acceptType, 
 		          @RequestHeader(value="Authorization", required=true) String token) throws IOException {
 	    	
-	    	//Recieves the user from Authentication-Service according to the token from request
-	    	User user = getUserByToken(token);
+	    	Songlist list;
 	    	
-	    	//If the user is not null
-	    	if(user != null) {
-	    		
-	    		String userIdFromRequest = user.getUserId();
-	    		
-	    		//Get the matching songlist by ID
-	    		Optional<Songlist> opt = repository.findById(id);
-	    		if(opt.equals(Optional.empty())) {
-	    			return new ResponseEntity<String>("Songlist doesnt exist", 
-                            HttpStatus.NOT_FOUND);	
-	    		}
-	    		Songlist list = opt.get();
-	    		   		
-	    		//Get the listowner
-	    		String listOwner = list.getOwnerId();
-	    		if(listOwner == null) {
-    				return new ResponseEntity<String>("Playlist doesnt exist", 
-                            HttpStatus.NOT_FOUND);
-    			}
-	    		
-	    		//Die Liste gehört dem RequestCreator
-	    		if(listOwner.equals(userIdFromRequest)) {
-	    			if(acceptType.equals(MediaType.APPLICATION_XML_VALUE)) {
-	                	MultiValueMap mvm = new HttpHeaders();
-	                    mvm.add("Content-Type", "application/xml");
-	                    String outputXML = list.toStringXML();
-	                    return new ResponseEntity<String>(outputXML, mvm, HttpStatus.OK);
-	    			}else {
-	    				MultiValueMap mvm = new HttpHeaders();
-	                    mvm.add("Content-Type", "application/json");
-	                    String outputJSON = list.toString();
-	                    return new ResponseEntity<String>(outputJSON, mvm, HttpStatus.OK);
-	    			}
-	    			//Die Liste gehört nicht dem RequestCreator
-	    		}else {
-	    			//die liste ist public
-	    			if(!list.isPrivate()) {
-	    				if(acceptType.equals(MediaType.APPLICATION_XML_VALUE)) {
-		                	MultiValueMap mvm = new HttpHeaders();
-		                    mvm.add("Content-Type", "application/xml");
-		                    String outputXML = list.toStringXML();
-		                    return new ResponseEntity<String>(outputXML, mvm, HttpStatus.OK);
-		    			}else {
-		    				MultiValueMap mvm = new HttpHeaders();
-		                    mvm.add("Content-Type", "application/json");
-		                    String outputJSON = list.toString();
-		                    return new ResponseEntity<String>(outputJSON, mvm, HttpStatus.OK);
-		    			}
-	    			}else {
-	    				return new ResponseEntity<String>("Forbidden", HttpStatus.FORBIDDEN);
-	    			}
-	    		}
-	    	}else {
-	    		return new ResponseEntity<String>("Unauthorized", HttpStatus.UNAUTHORIZED);
-	    	}
+			try {
+				list = songlistsService.getSonlistByID(token, id);
+			} catch (ForbiddenException fe) {
+				return new ResponseEntity<String>(fe.getMessage(), HttpStatus.FORBIDDEN);
+			} catch (UnathorizedException ue) {
+				return new ResponseEntity<String>(ue.getMessage(), HttpStatus.UNAUTHORIZED);
+			} catch (NotFoundException nfe) {
+				return new ResponseEntity<String>(nfe.getMessage(), HttpStatus.NOT_FOUND);
+			}
+			
+			MultiValueMap mvm = new HttpHeaders();
+	    	
+			//Generate response
+			if(acceptType.equals(MediaType.APPLICATION_XML_VALUE)) {
+                mvm.add("Content-Type", "application/xml");
+                return new ResponseEntity<String>(list.toStringXML(), mvm, HttpStatus.OK);
+			}else {
+                mvm.add("Content-Type", "application/json");
+                return new ResponseEntity<String>(list.toString(), mvm, HttpStatus.OK);
+			}
 	    }
 	    
 	    /**
@@ -210,46 +136,21 @@ public class SonglistControllerDI {
 	    public ResponseEntity<String> addSonglist (@RequestBody Songlist songlist,
 	    		@RequestHeader(value="Authorization", required=true) String token,
 	    		@RequestHeader(value="Content-Type", required=true) String contentType){
-	    	
-	    	//If the request-body is not empty
-	        if(songlist != null){
-	        	
-	        	//Retrieve user from Authentication-Service
-	        	User user = getUserByToken(token);
-	        	
-	        	//If user is not authorized
-		        if(user == null) {
-		        	return new ResponseEntity<String>("Unauthorized", HttpStatus.UNAUTHORIZED);
-		        }
-		        
-	        try {
-	        	
-	        	//Retrieve the userID from the user
-	        	String userId = user.getUserId();
-	        	System.out.println("UserID: " + userId);
-	        	
-	        	//Set the owner of the songlist
-	        	songlist.setOwnerId(userId);
-	        	System.out.println("Songlist to insert: " + songlist.toStringXML());
-	        	
-	        	//Persist the songlist in the DB
-	        	Songlist savedList = repository.save(songlist);
-	        	
-	        	//ID of the Songlist
-	            Integer id = savedList.getId();
-	            
-	            //Setting the Location-Header
-	            HttpHeaders header = new HttpHeaders();
-	            header.set("Location", "http://localhost:8080/songs/playlists" + id);
-	            return new ResponseEntity<String>("Id of the added songlist is: " + id, header, HttpStatus.CREATED);
-	        }catch(Exception ex){
-	        	ex.printStackTrace();
-	            return new ResponseEntity<String>("Songlist was not created! All songs have to exist in the DB!", HttpStatus.BAD_REQUEST);
-	        }
-	        //If the request-body is empty
-	        }else{
-	            return new ResponseEntity<String>("Songlist was not created, RequestBody was null", HttpStatus.BAD_REQUEST);
-	            }
+
+	    	Integer id;
+			try {
+				id = songlistsService.addSonglist(songlist, token);
+				
+				//Setting the Location-Header
+				HttpHeaders header = new HttpHeaders();
+				header.set("Location", "http://localhost:8080/songs/playlists/" + id);
+				return new ResponseEntity<String>("Id of the added songlist is: " + id, header, HttpStatus.CREATED);
+				
+			} catch (UnathorizedException ue) {
+				return new ResponseEntity<String>(ue.getMessage(), HttpStatus.UNAUTHORIZED);
+			} catch (BadRequestException bre) {
+				return new ResponseEntity<String>(bre.getMessage(), HttpStatus.BAD_REQUEST);
+			}
 	    }
 	    
 	    /**
@@ -271,49 +172,16 @@ public class SonglistControllerDI {
 	    		@RequestHeader(value="Authorization", required=true) String token,
 	    		@RequestHeader(value="Content-Type") String contentType){
 	    	
-	    	//Retrieve user from Authentication-Service
-        	User user = getUserByToken(token);
-        	
-        	//If user is not authorized
-	        if(user == null) {
-	        	return new ResponseEntity<String>("Unauthorized", HttpStatus.UNAUTHORIZED);
-	        }
-	        
-	        //If the request body is valid
-	        if(songlist != null) {
-	        	
-	        	Set<Song> songs = songlist.getSongList();
-	        	
-	        	for(Song s : songs) {
-	        		if(songExists(s, token) == false) {
-	        			return new ResponseEntity<String>("Songlist was not updated! All songs have to exist in the DB!", HttpStatus.BAD_REQUEST);
-	        		}
-	        	}
-	        	
-        		//The songlist with the requested ID, from DB
-        		Songlist songlistDB = repository.findById(id).get();
-        		
-        		//Owner of the songlist in the DB
-        		String ownerId = songlistDB.getOwnerId();
-        		
-        		//If the user is the owner of the songlist
-        		if(user.getUserId().equals(ownerId)) {
-        			
-        			//Updating the existing songlist
-        			songlistDB.setName(songlist.getName());
-        			songlistDB.setPublic(songlist.isPrivate());;
-        			songlistDB.setSongList(songlist.getSongList());
-        			repository.save(songlistDB);
-        			
-        			return new ResponseEntity<String>(HttpStatus.NO_CONTENT);
-        		}else {
-        			return new ResponseEntity<String>("Forbidden", HttpStatus.FORBIDDEN);
-        		}
-	        		
-	        //If the request body is not valid
-	        }else {
-	        	return new ResponseEntity<String>("Songlist was not updated, RequestBody was null", HttpStatus.BAD_REQUEST);
-	        }
+	    	try {
+				songlistsService.updateSonglist(token, songlist, id);
+				return new ResponseEntity<String>(HttpStatus.NO_CONTENT);
+			} catch (UnathorizedException ue) {
+				return new ResponseEntity<String>(ue.getMessage(), HttpStatus.UNAUTHORIZED);
+			} catch (BadRequestException bre) {
+				return new ResponseEntity<String>(bre.getMessage(), HttpStatus.BAD_REQUEST);
+			} catch (ForbiddenException fe) {
+				return new ResponseEntity<String>(fe.getMessage(), HttpStatus.UNAUTHORIZED);
+			}
 	    }
 	    
 	    /**
@@ -333,118 +201,19 @@ public class SonglistControllerDI {
 		          @PathVariable (value="id") Integer id,
 		          @RequestHeader(value="Authorization", required=true) String token){
 	    	
-	    	//Retrieve user from Authentication-Service by token
-	    	User user = getUserByToken(token);
-	    	
-	    	//If the token is wrong
-	    	if(user == null) {
-	    		return new ResponseEntity<String>("Unathorized! Bad token!", HttpStatus.UNAUTHORIZED);
-	    	}
-	    	
-	    	Songlist list = null;
-	    	
-	    	//get userID from User
-    		String userId = user.getUserId();
-    		
-    		//Retrieve the list from the DB
-    		try {    			
-    			list = repository.findById(id).get();
-    		}catch(NoSuchElementException noElement) {
-    			return new ResponseEntity<String>("List doesnt exist!", HttpStatus.NOT_FOUND);
-    		}
-    		
-    		//Check if the operation is permitted
-    		if(list.getOwnerId().equals(userId)) {
-    			
-    			//Delete the songlist from DB
-    			repository.deleteById(id);
-    			
-    			return new ResponseEntity<String>("Songlist with id " + id + " was successfully deleted!", HttpStatus.OK);
-    			
-    		}else {
-    			
-    			return new ResponseEntity<String>("Forbidden", HttpStatus.FORBIDDEN);
-    			
-    		}
-	    	}
-//	    private boolean checkToken(String token) {
-//	    	String url = "http://localhost:8082/auth/" + token;
-//	    	ResponseEntity<String> response = null;
-//	    	try {
-//	    		response = restTemplate.exchange(url, HttpMethod.GET, null, String.class);
-//	    	}catch(Exception ex) {
-//	    		System.out.println("Something happend"); //NEED HANDLING! EXCEPTION CUZ OF 401-Code!
-//	    	}
-//	    	boolean authorized = false;
-//	    	if(response == null) { //null when 4XX or 5XX Status-Code
-//	    		return false;
-//	    	}
-//	    	if(response.getStatusCode() == HttpStatus.OK) {
-//	    		authorized = true;
-//	    	}
-//	    	System.out.println("---------------------------------------------------------------");
-//	    	System.out.println(response.getStatusCode().toString());
-//	    	return authorized;
-//	    	return true;
-//	    }
-	    /**
-	     * Retrieves a user information from Authentication Service(/auth) according to the token.
-	     * In order to retrieve a data from Auth-Service, each requesting service needs to authenticate
-	     * with its own Token (ServiceToken).
-	     * If the user doesnt exist in the DB, returns null.
-	     * @param token
-	     * @return User if exists, null if user doesnt exist
-	     */
-	    private User getUserByToken(String token) {
-	    	//URL for the Request on Auth-Service
-	    	String url = "http://localhost:8082/auth/getUser/" + token;
-	    	
-	    	//Sets the Header for Authentication of the Service
-	    	HttpHeaders headers = new HttpHeaders();
-	    	headers.set("ServiceToken", SERVICETOKEN);
-	    	
-	    	//Adding Service-Token to the header
-	    	HttpEntity<String> entity = new HttpEntity<>(headers);
-	    	ResponseEntity<User> response = null;
-	    	
-	    	//Requesting the user information
 	    	try {
-	    		response = restTemplate.exchange(url, HttpMethod.GET, entity, User.class);		
-	    	}catch(HttpClientErrorException e) {
-	    		return null;
-	    	}
+				songlistsService.deleteSong(token, id);
+				return new ResponseEntity<String>("Songlist with id " + id + " was successfully deleted!", HttpStatus.OK);
+			} catch (UnathorizedException ue) {
+				return new ResponseEntity<String>(ue.getMessage(), HttpStatus.UNAUTHORIZED);
+			} catch (ForbiddenException fe) {
+				return new ResponseEntity<String>(fe.getMessage(), HttpStatus.FORBIDDEN);
+			} catch (NotFoundException nfe) {
+				return new ResponseEntity<String>(nfe.getMessage(), HttpStatus.NOT_FOUND);
+			}
 	    	
-	    	return response.getBody();
+	    	
 	    }
-	    
-	    private boolean songExists(Song s, String token) {
-	    	String url = "http://localhost:8080/songs/" + s.getId();
-	    	
-	    	//Set the token of the user
-	    	HttpHeaders headers = new HttpHeaders();
-	    	headers.set("Authorization", token);
-	    	
-	    	HttpEntity<String> entity = new HttpEntity<>(headers);
-	    	ResponseEntity<String> response = null;
-	    	
-	    	//Requesting the song existence information
-	    	try {
-	    		response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);		
-	    	}catch(HttpClientErrorException e) {
-	    		return false;
-	    	}
-	    	if(response.getStatusCode() == HttpStatus.OK) {
-	    		return true;
-	    	}else {
-	    		return false;
-	    	}
-//	    	System.out.println("Song from DB with" + s.getId() + ": " + response.getBody());
-//	    	if(s.equals(response.getBody())) {
-//	    		return true;
-//	    	}else {
-//	    		return false;
-//	    	}
-	    }
-	    
+    
 }
 

@@ -1,8 +1,14 @@
 /Users/lyubar/workspace/songsMS/SongsSonglistsService/src/main/java/htwb/ai/SongsSonglistsService/repository/SongRepository.java
 /Users/lyubar/workspace/songsMS/SongsSonglistsService/src/main/java/htwb/ai/SongsSonglistsService/repository/SonglistRepository.java
+/Users/lyubar/workspace/songsMS/SongsSonglistsService/src/main/java/htwb/ai/SongsSonglistsService/service/SongsService.java
+/Users/lyubar/workspace/songsMS/SongsSonglistsService/src/main/java/htwb/ai/SongsSonglistsService/exception/ForbiddenException.java
 /Users/lyubar/workspace/songsMS/SongsSonglistsService/src/main/java/htwb/ai/SongsSonglistsService/controller/SongControllerDI.java
-/Users/lyubar/workspace/songsMS/SongsSonglistsService/src/main/java/htwb/ai/SongsSonglistsService/model/Song.java
 /Users/lyubar/workspace/songsMS/SongsSonglistsService/src/main/java/htwb/ai/SongsSonglistsService/model/User.java
-/Users/lyubar/workspace/songsMS/SongsSonglistsService/src/main/java/htwb/ai/SongsSonglistsService/model/Songlist.java
+/Users/lyubar/workspace/songsMS/SongsSonglistsService/src/main/java/htwb/ai/SongsSonglistsService/exception/NotFoundException.java
 /Users/lyubar/workspace/songsMS/SongsSonglistsService/src/main/java/htwb/ai/SongsSonglistsService/SongsSonglistsServiceApplication.java
+/Users/lyubar/workspace/songsMS/SongsSonglistsService/src/main/java/htwb/ai/SongsSonglistsService/exception/BadRequestException.java
+/Users/lyubar/workspace/songsMS/SongsSonglistsService/src/main/java/htwb/ai/SongsSonglistsService/service/SonglistsService.java
+/Users/lyubar/workspace/songsMS/SongsSonglistsService/src/main/java/htwb/ai/SongsSonglistsService/model/Song.java
+/Users/lyubar/workspace/songsMS/SongsSonglistsService/src/main/java/htwb/ai/SongsSonglistsService/model/Songlist.java
+/Users/lyubar/workspace/songsMS/SongsSonglistsService/src/main/java/htwb/ai/SongsSonglistsService/exception/UnathorizedException.java
 /Users/lyubar/workspace/songsMS/SongsSonglistsService/src/main/java/htwb/ai/SongsSonglistsService/controller/SonglistControllerDI.java

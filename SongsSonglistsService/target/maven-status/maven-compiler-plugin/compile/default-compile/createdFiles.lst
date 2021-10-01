@@ -1,8 +1,8 @@
 htwb/ai/SongsSonglistsService/controller/SongControllerDI.class
 htwb/ai/SongsSonglistsService/SongsSonglistsServiceApplication.class
-htwb/ai/SongsSonglistsService/model/Songlist.class
 htwb/ai/SongsSonglistsService/controller/SonglistControllerDI.class
 htwb/ai/SongsSonglistsService/model/Song.class
-htwb/ai/SongsSonglistsService/model/User.class
 htwb/ai/SongsSonglistsService/repository/SonglistRepository.class
+htwb/ai/SongsSonglistsService/model/Songlist.class
+htwb/ai/SongsSonglistsService/model/User.class
 htwb/ai/SongsSonglistsService/repository/SongRepository.class
