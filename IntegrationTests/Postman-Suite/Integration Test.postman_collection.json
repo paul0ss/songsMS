@@ -1,0 +1,2515 @@
+{
+	"info": {
+		"_postman_id": "c1abe124-4533-44a9-b626-9fb2919c36b3",
+		"name": "Integration Test",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Auth Correct User",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"var tokenKey = pm.response.text();",
+							"pm.environment.set(\"token\", tokenKey);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"userId\": \"{{userId}}\",\n    \"password\": \"{{password}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/auth",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"auth"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Auth wrong user",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 401\", function () {",
+							"    pm.response.to.have.status(401);",
+							"});",
+							"pm.test(\"Body matches string\", function () {",
+							"    pm.expect(pm.response.text()).to.include(\"Declined: No such user!\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"userId\": \"someuser\",\n    \"password\": \"{{password}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/auth",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"auth"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET songs 200",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"var schema = {",
+							"    \"properties\": {",
+							"        \"id\": {",
+							"            \"type\": \"integer\"",
+							"        },",
+							"        \"title\": {",
+							"            \"type\": \"string\"",
+							"        },",
+							"        \"artist\": {",
+							"            \"type\": \"string\"",
+							"        },",
+							"        \"label\": {",
+							"            \"type\": \"string\"",
+							"        },",
+							"        \"released\": {",
+							"            \"type\": \"string\"",
+							"        }",
+							"    },",
+							"    \"required\": [",
+							"        \"id\",",
+							"        \"title\",",
+							"        \"artist\",",
+							"        \"label\",",
+							"        \"released\"",
+							"      ]",
+							"};",
+							"",
+							"var jsonResponse = pm.response.json();",
+							"pm.test('Schema is valid', function() {",
+							"  pm.expect(tv4.validate(jsonResponse, schema)).to.be.true;",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8080/songs",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"songs"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET songs wrong Accept-Header: 406",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 406\", function () {",
+							"    pm.response.to.have.status(406);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{token}}",
+						"type": "text"
+					},
+					{
+						"key": "Accept",
+						"value": "application/octet-stream",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8080/songs",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"songs"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET songs Unathorized 401",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 401\", function () {",
+							"    pm.response.to.have.status(401);",
+							"});",
+							"pm.test(\"Body is correct\", function () {",
+							"    pm.response.to.have.body(\"Unauthorized\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "token",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8080/songs",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"songs"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET songs 200 in XML",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"var schema = {",
+							"    \"properties\": {",
+							"        \"id\": {",
+							"            \"type\": \"integer\"",
+							"        },",
+							"        \"title\": {",
+							"            \"type\": \"string\"",
+							"        },",
+							"        \"artist\": {",
+							"            \"type\": \"string\"",
+							"        },",
+							"        \"label\": {",
+							"            \"type\": \"string\"",
+							"        },",
+							"        \"released\": {",
+							"            \"type\": \"string\"",
+							"        }",
+							"    },",
+							"    \"required\": [",
+							"        \"id\",",
+							"        \"title\",",
+							"        \"artist\",",
+							"        \"label\",",
+							"        \"released\"",
+							"      ]",
+							"};",
+							"",
+							"var jsonResponse = xml2Json(responseBody);",
+							"console.log(jsonResponse.songs.song);",
+							"pm.test('Schema is valid', function() {",
+							"  pm.expect(tv4.validate(jsonResponse.songs.song, schema)).to.be.true;",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{token}}",
+						"type": "text"
+					},
+					{
+						"key": "Accept",
+						"value": "application/xml",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8080/songs",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"songs"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET song with id=5 JSON output",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"",
+							"var schema = {",
+							"    \"properties\": {",
+							"        \"id\": {",
+							"            \"type\": \"integer\"",
+							"        },",
+							"        \"title\": {",
+							"            \"type\": \"string\"",
+							"        },",
+							"        \"artist\": {",
+							"            \"type\": \"string\"",
+							"        },",
+							"        \"label\": {",
+							"            \"type\": \"string\"",
+							"        },",
+							"        \"released\": {",
+							"            \"type\": \"string\"",
+							"        }",
+							"    },",
+							"    \"required\": [",
+							"        \"id\",",
+							"        \"title\",",
+							"        \"artist\",",
+							"        \"label\",",
+							"        \"released\"",
+							"      ]",
+							"};",
+							"",
+							"var jsonResponse = pm.response.json();",
+							"pm.test('Schema is valid', function() {",
+							"  pm.expect(tv4.validate(jsonResponse, schema)).to.be.true;",
+							"});",
+							"",
+							"pm.test('Id is 5', function() {",
+							"  pm.expect(jsonResponse.id).to.be.equal(5);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8080/songs/5",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"songs",
+						"5"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET song with id=5 XML output",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"",
+							"var schema = {",
+							"    \"properties\": {",
+							"        \"id\": {",
+							"            \"type\": \"integer\"",
+							"        },",
+							"        \"title\": {",
+							"            \"type\": \"string\"",
+							"        },",
+							"        \"artist\": {",
+							"            \"type\": \"string\"",
+							"        },",
+							"        \"label\": {",
+							"            \"type\": \"string\"",
+							"        },",
+							"        \"released\": {",
+							"            \"type\": \"string\"",
+							"        }",
+							"    },",
+							"    \"required\": [",
+							"        \"id\",",
+							"        \"title\",",
+							"        \"artist\",",
+							"        \"label\",",
+							"        \"released\"",
+							"      ]",
+							"};",
+							"",
+							"var jsonResponse = xml2Json(responseBody);",
+							"console.log(jsonResponse.song.id);",
+							"pm.test('Schema is valid', function() {",
+							"  pm.expect(tv4.validate(jsonResponse.song, schema)).to.be.true;",
+							"});",
+							"",
+							"pm.test('Id is 5', function() {",
+							"  pm.expect(jsonResponse.song.id).to.be.equal(\"5\");",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{token}}",
+						"type": "text"
+					},
+					{
+						"key": "Accept",
+						"value": "application/xml",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8080/songs/5",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"songs",
+						"5"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET song with id=10000 NOT FOUND:404",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 404\", function () {",
+							"    pm.response.to.have.status(404);",
+							"    ",
+							"pm.test(\"Body matches string\", function () {",
+							"    pm.expect(pm.response.text()).to.include(\"Song with id\");",
+							"    pm.expect(pm.response.text()).to.include(\"does not exist\");",
+							"});",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8080/songs/10000",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"songs",
+						"10000"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "POST a valid song in JSON format",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"var schema = {",
+							"    \"properties\": {",
+							"        \"id\": {",
+							"            \"type\": \"integer\"",
+							"        },",
+							"        \"title\": {",
+							"            \"type\": \"string\"",
+							"        },",
+							"        \"artist\": {",
+							"            \"type\": \"string\"",
+							"        },",
+							"        \"label\": {",
+							"            \"type\": \"string\"",
+							"        },",
+							"        \"released\": {",
+							"            \"type\": \"string\"",
+							"        }",
+							"    },",
+							"    \"required\": [",
+							"        \"id\",",
+							"        \"title\",",
+							"        \"artist\",",
+							"        \"label\",",
+							"        \"released\"",
+							"      ]",
+							"};",
+							"",
+							"var jsonResponse = pm.response.json();",
+							"pm.test('Schema is valid', function() {",
+							"  pm.expect(tv4.validate(jsonResponse, schema)).to.be.true;",
+							"});",
+							"",
+							"pm.test(\"id header is present\", () => {",
+							"  pm.response.to.have.header(\"id\");",
+							"});",
+							"",
+							"pm.test(\"Content-Type header is application/json\", () => {",
+							"  pm.expect(pm.response.headers.get('Content-Type')).to.eql('application/json');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "{{token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"title\": \"Eminem\",\n    \"artist\": \"Lose Yourself\",\n    \"label\": \"Universal\",\n    \"released\": \"2006\"\n}",
+					"options": {
+						"raw": {
+							"language": "text"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/songs/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"songs",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "POST a not valid song in JSON format",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400\", function () {",
+							"    pm.response.to.have.status(400);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "{{token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"label\": \"null\"\n    \"released\": \"2006\"\n}",
+					"options": {
+						"raw": {
+							"language": "text"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/songs/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"songs",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "POST a song with wrong token Anuthorized:401",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 401\", function () {",
+							"    pm.response.to.have.status(401);",
+							"});",
+							"pm.test(\"Body is correct\", function () {",
+							"    pm.response.to.have.body(\"Unauthorized\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "token",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"title\": \"Eminem\",\n    \"artist\": \"Lose Yourself\",\n    \"label\": \"null\",\n    \"released\": \"2006\"\n}",
+					"options": {
+						"raw": {
+							"language": "text"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/songs/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"songs",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Change song with id",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 204\", function () {",
+							"    pm.response.to.have.status(204);",
+							"});",
+							"pm.test(\"Status code name has string\", function () {",
+							"    pm.response.to.have.status(\"No Content\");",
+							"});",
+							"",
+							"let idNew = parseInt(pm.environment.get(\"id\")) + 1;",
+							"console.log(idNew);",
+							"pm.environment.set(\"id\",  idNew);"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "{{token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"id\": \"{{id}}\",\n    \"title\": \"Hello\",\n    \"artist\": \"Drake\",\n    \"label\": \"null\",\n    \"released\": \"2666\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/songs/{{id}}",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"songs",
+						"{{id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Change song with id 1000 NOT FOUND: 404",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 404\", function () {",
+							"    pm.response.to.have.status(404);",
+							"});",
+							"pm.test(\"Status code name has string\", function () {",
+							"    pm.response.to.have.status(\"Not Found\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "{{token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"id\": \"56\",\n    \"title\": \"Hello\",\n    \"artist\": \"Drake\",\n    \"label\": \"null\",\n    \"released\": \"2666\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/songs/1000",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"songs",
+						"1000"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Change song with id 56 Bad Request",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400\", function () {",
+							"    pm.response.to.have.status(400);",
+							"});",
+							"pm.test(\"Status code name has string\", function () {",
+							"    pm.response.to.have.status(\"Bad Request\");",
+							"});",
+							"pm.test(\"Body is correct\", function () {",
+							"    pm.response.to.have.body(\"Song was not updated, RequestBody was null or ID did not match\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "{{token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"label\": \"null\",\n    \"released\": \"2666\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/songs/56",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"songs",
+						"56"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Change song without Autorization: 401",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 401\", function () {",
+							"    pm.response.to.have.status(401);",
+							"});",
+							"pm.test(\"Status code name has string\", function () {",
+							"    pm.response.to.have.status(\"Unauthorized\");",
+							"});",
+							"pm.test(\"Body is correct\", function () {",
+							"    pm.response.to.have.body(\"Unauthorized\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "token",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"id\": \"56\",\n    \"title\": \"Hello\",\n    \"artist\": \"Drake\",\n    \"label\": \"null\",\n    \"released\": \"2666\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8083/songs/56",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8083",
+					"path": [
+						"songs",
+						"56"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "DELETE a song with id",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let idNew = parseInt(pm.environment.get(\"id\")) + 1;",
+							"console.log(idNew);",
+							"pm.environment.set(\"id\",  idNew);",
+							"",
+							"pm.test(\"Status code is 204\", function () {",
+							"    pm.response.to.have.status(204);",
+							"});",
+							"pm.test(\"Status code name has string\", function () {",
+							"    pm.response.to.have.status(\"No Content\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8080/songs/{{id}}",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"songs",
+						"{{id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET own playlists in JSON",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Content-Type header is application/json\", () => {",
+							"  pm.expect(pm.response.headers.get('Content-Type')).to.eql('application/json');",
+							"});",
+							"",
+							"var schema = {",
+							"    \"properties\": {",
+							"        \"isPrivate\": {",
+							"            \"type\": \"boolean\"",
+							"        },",
+							"        \"name\": {",
+							"            \"type\": \"string\"",
+							"        },",
+							"        \"songList\": {",
+							"            \"type\": \"array\"",
+							"        }",
+							"    },",
+							"    \"required\": [",
+							"        \"isPrivate\",",
+							"        \"name\",",
+							"        \"songList\"",
+							"      ]",
+							"};",
+							"",
+							"//var jsonResponse = pm.response.json();",
+							"//console.log(jsonResponse)",
+							"//pm.test('Schema is valid', function() {",
+							"//  pm.expect(tv4.validate(jsonResponse, schema)).to.be.true;",
+							"//});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "{{token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8080/songs/playlists?userId={{userId}}",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"songs",
+						"playlists"
+					],
+					"query": [
+						{
+							"key": "userId",
+							"value": "{{userId}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET foreign playlists in JSON",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Content-Type header is application/json\", () => {",
+							"  pm.expect(pm.response.headers.get('Content-Type')).to.eql('application/json');",
+							"});",
+							"",
+							"var schema = {",
+							"    \"properties\": {",
+							"        \"isPrivate\": {",
+							"            \"type\": \"boolean\"",
+							"        },",
+							"        \"name\": {",
+							"            \"type\": \"string\"",
+							"        },",
+							"        \"songList\": {",
+							"            \"type\": \"array\"",
+							"        }",
+							"    },",
+							"    \"required\": [",
+							"        \"isPrivate\",",
+							"        \"name\",",
+							"        \"songList\"",
+							"      ]",
+							"};",
+							"",
+							"//var jsonResponse = pm.response.json();",
+							"//console.log(jsonResponse)",
+							"//pm.test('Schema is valid', function() {",
+							"//  pm.expect(tv4.validate(jsonResponse, schema)).to.be.true;",
+							"//});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "{{token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8080/songs/playlists?userId={{userIdforeign}}",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"songs",
+						"playlists"
+					],
+					"query": [
+						{
+							"key": "userId",
+							"value": "{{userIdforeign}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET own playlists in XML",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Content-Type header is application/json\", () => {",
+							"  pm.expect(pm.response.headers.get('Content-Type')).to.eql('application/xml');",
+							"});",
+							"",
+							"var schema = {",
+							"    \"properties\": {",
+							"        \"isPrivate\": {",
+							"            \"type\": \"boolean\"",
+							"        },",
+							"        \"name\": {",
+							"            \"type\": \"string\"",
+							"        },",
+							"        \"songList\": {",
+							"            \"type\": \"array\"",
+							"        }",
+							"    },",
+							"    \"required\": [",
+							"        \"isPrivate\",",
+							"        \"name\",",
+							"        \"songList\"",
+							"      ]",
+							"};",
+							"",
+							"//var jsonResponse = pm.response.json();",
+							"//console.log(jsonResponse)",
+							"//pm.test('Schema is valid', function() {",
+							"//  pm.expect(tv4.validate(jsonResponse, schema)).to.be.true;",
+							"//});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/xml",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "{{token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8080/songs/playlists?userId={{userId}}",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"songs",
+						"playlists"
+					],
+					"query": [
+						{
+							"key": "userId",
+							"value": "{{userId}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET foreign playlists in XML",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Content-Type header is application/json\", () => {",
+							"  pm.expect(pm.response.headers.get('Content-Type')).to.eql('application/xml');",
+							"});",
+							"",
+							"var schema = {",
+							"    \"properties\": {",
+							"        \"isPrivate\": {",
+							"            \"type\": \"boolean\"",
+							"        },",
+							"        \"name\": {",
+							"            \"type\": \"string\"",
+							"        },",
+							"        \"songList\": {",
+							"            \"type\": \"array\"",
+							"        }",
+							"    },",
+							"    \"required\": [",
+							"        \"isPrivate\",",
+							"        \"name\",",
+							"        \"songList\"",
+							"      ]",
+							"};",
+							"",
+							"//var jsonResponse = pm.response.json();",
+							"//console.log(jsonResponse)",
+							"//pm.test('Schema is valid', function() {",
+							"//  pm.expect(tv4.validate(jsonResponse, schema)).to.be.true;",
+							"//});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/xml",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "{{token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8080/songs/playlists?userId={{userIdforeign}}",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"songs",
+						"playlists"
+					],
+					"query": [
+						{
+							"key": "userId",
+							"value": "{{userIdforeign}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET own playlist in JSON",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Content-Type header is application/json\", () => {",
+							"  pm.expect(pm.response.headers.get('Content-Type')).to.eql('application/json');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept-encoding": true,
+					"user-agent": true,
+					"accept": true
+				},
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "{{token}}",
+						"type": "text"
+					},
+					{
+						"key": "userId",
+						"value": "",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n \"isPrivate\": true,\n \"name\": \"Some Playlist\",\n \"songList\": [\n    {\n        \"id\": 9,\n        \"title\": \"Private Show\",\n        \"artist\": \"Britney Spears\",\n        \"label\": \"Glory\",\n        \"released\": \"2016\"\n    },\n    {\n        \"id\": 4,\n        \"title\": \"Ghostbusters (I'm not a fraid)\",\n        \"artist\": \"Fall Out Boy, Missy Elliott\",\n        \"label\": \"Ghostbusters\",\n        \"released\": \"2016\"\n    }\n ]\n} ",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/songs/playlists/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"songs",
+						"playlists",
+						"1"
+					],
+					"query": [
+						{
+							"key": "Accept",
+							"value": "application/j",
+							"disabled": true
+						},
+						{
+							"key": "Authori",
+							"value": null,
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET foreign playlist in JSON (ONLY PUBLIC)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Content-Type header is application/json\", () => {",
+							"  pm.expect(pm.response.headers.get('Content-Type')).to.eql('application/json');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8080/songs/playlists/2",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"songs",
+						"playlists",
+						"2"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET foreign playlist in XML(ONLY PUBLIC) Copy",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Content-Type header is application/json\", () => {",
+							"  pm.expect(pm.response.headers.get('Content-Type')).to.eql('application/xml');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{token}}",
+						"type": "text"
+					},
+					{
+						"key": "Accept",
+						"value": "application/xml",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8080/songs/playlists/2",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"songs",
+						"playlists",
+						"2"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET not existing playlist NOT FOUND:404",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 404\", function () {",
+							"    pm.response.to.have.status(404);",
+							"});",
+							"pm.test(\"Body is correct\", function () {",
+							"    pm.response.to.have.body(\"Songlist doesnt exist\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept-encoding": true,
+					"user-agent": true,
+					"accept": true
+				},
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "{{token}}",
+						"type": "text"
+					},
+					{
+						"key": "userId",
+						"value": "",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n \"isPrivate\": true,\n \"name\": \"Some Playlist\",\n \"songList\": [\n    {\n        \"id\": 9,\n        \"title\": \"Private Show\",\n        \"artist\": \"Britney Spears\",\n        \"label\": \"Glory\",\n        \"released\": \"2016\"\n    },\n    {\n        \"id\": 4,\n        \"title\": \"Ghostbusters (I'm not a fraid)\",\n        \"artist\": \"Fall Out Boy, Missy Elliott\",\n        \"label\": \"Ghostbusters\",\n        \"released\": \"2016\"\n    }\n ]\n} ",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/songs/playlists/10000",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"songs",
+						"playlists",
+						"10000"
+					],
+					"query": [
+						{
+							"key": "Accept",
+							"value": "application/j",
+							"disabled": true
+						},
+						{
+							"key": "Authori",
+							"value": null,
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "CREATE a playlist",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"pm.test(\"Status code name has string\", function () {",
+							"    pm.response.to.have.status(\"Created\");",
+							"});",
+							"",
+							"pm.test(\"Body matches string\", function () {",
+							"    pm.expect(pm.response.text()).to.include(\"Id of the added songlist is:\");",
+							"});",
+							"",
+							"pm.test(\"Location header is present\", () => {",
+							"  pm.response.to.have.header(\"Location\");",
+							"});",
+							"",
+							"pm.test(\"Location header conains link to the createed playlist\", () => {",
+							"  pm.expect(pm.response.headers.get('Location')).to.include(\"/songs/playlists/\");",
+							"});",
+							"",
+							"pm.environment.set(\"createdSonglist\", pm.response.headers.get('Location'));",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept-encoding": true,
+					"user-agent": true,
+					"accept": true
+				}
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "{{token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n \"isPrivate\": true,\n \"name\": \"Some Playlist\",\n \"songList\": [\n    {\n        \"id\": 3,\n        \"title\": \"Team\",\n        \"artist\": \"Iggy Azalea\",\n        \"label\": \"null\",\n        \"released\": \"2016\"\n    },\n    {\n        \"id\": 4,\n        \"title\": \"Ghostbusters (I'm not a fraid)\",\n        \"artist\": \"Fall Out Boy, Missy Elliott\",\n        \"label\": \"Ghostbusters\",\n        \"released\": \"2016\"\n    }\n ]\n } ",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/songs/playlists",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"songs",
+						"playlists"
+					],
+					"query": [
+						{
+							"key": "Accept",
+							"value": "application/j",
+							"disabled": true
+						},
+						{
+							"key": "Authori",
+							"value": null,
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "CREATE a playlist BAD Request: 400",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400\", function () {",
+							"    pm.response.to.have.status(400);",
+							"});",
+							"pm.test(\"Body matches string\", function () {",
+							"    pm.expect(pm.response.text()).to.include(\"Bad Request\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept-encoding": true,
+					"user-agent": true,
+					"accept": true
+				}
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "{{token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/songs/playlists",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"songs",
+						"playlists"
+					],
+					"query": [
+						{
+							"key": "Accept",
+							"value": "application/j",
+							"disabled": true
+						},
+						{
+							"key": "Authori",
+							"value": null,
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "CREATE a playlist UNATHORIZED: 401",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 401\", function () {",
+							"    pm.response.to.have.status(401);",
+							"});",
+							"pm.test(\"Body matches string\", function () {",
+							"    pm.expect(pm.response.text()).to.include(\"Unauthorized\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept-encoding": true,
+					"user-agent": true,
+					"accept": true
+				}
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "token",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n \"isPrivate\": true,\n \"name\": \"Some Playlist\",\n \"songList\": [\n    {\n        \"id\": 3,\n        \"title\": \"Team\",\n        \"artist\": \"Iggy Azalea\",\n        \"label\": \"null\",\n        \"released\": \"2016\"\n    },\n    {\n        \"id\": 4,\n        \"title\": \"Ghostbusters (I'm not a fraid)\",\n        \"artist\": \"Fall Out Boy, Missy Elliott\",\n        \"label\": \"Ghostbusters\",\n        \"released\": \"2016\"\n    }\n ]\n } ",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/songs/playlists",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"songs",
+						"playlists"
+					],
+					"query": [
+						{
+							"key": "Accept",
+							"value": "application/j",
+							"disabled": true
+						},
+						{
+							"key": "Authori",
+							"value": null,
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "UPDATE Playlist",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 204\", function () {",
+							"    pm.response.to.have.status(204);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{token}}",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n \"isPrivate\": true,\n \"name\": \"Some Cool Playlist\",\n \"songList\": [\n    {\n        \"id\": 3,\n        \"title\": \"Teamtet\",\n        \"artist\": \"Iggy Azalea\",\n        \"label\": \"null\",\n        \"released\": \"2016\"\n    },\n    {\n        \"id\": 4,\n        \"title\": \"Ghostbusters (I'm not a fraid)\",\n        \"artist\": \"Fall Out Boy, Missy Elliott\",\n        \"label\": \"Ghostbusters\",\n        \"released\": \"2016\"\n    }\n ]\n } "
+				},
+				"url": {
+					"raw": "http://localhost:8080/songs/playlists/2",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"songs",
+						"playlists",
+						"2"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "UPDATE Playlist without id BAD REQUEST: 400",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400\", function () {",
+							"    pm.response.to.have.status(400);",
+							"});",
+							"pm.test(\"Body matches string\", function () {",
+							"    pm.expect(pm.response.text()).to.include(\"Bad Request\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{token}}",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n \"isPrivate\": true,\n \"name\": \"Some Cool Playlist\",\n \"songList\": [\n    {\n        \"id\": 3,\n        \"title\": \"Teamtet\",\n        \"artist\": \"Iggy Azalea\",\n        \"label\": \"null\",\n        \"released\": \"2016\"\n    },\n    {\n        \"id\": 4,\n        \"title\": \"Ghostbusters (I'm not a fraid)\",\n        \"artist\": \"Fall Out Boy, Missy Elliott\",\n        \"label\": \"Ghostbusters\",\n        \"released\": \"2016\"\n    }\n ]\n } "
+				},
+				"url": {
+					"raw": "http://localhost:8080/songs/playlists/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"songs",
+						"playlists",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "UPDATE foreign Playlist UNAUTHORIZED:401",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 401\", function () {",
+							"    pm.response.to.have.status(401);",
+							"});",
+							"pm.test(\"Status code name has string\", function () {",
+							"    pm.response.to.have.status(\"Unauthorized\");",
+							"});",
+							"pm.test(\"Body is correct\", function () {",
+							"    pm.response.to.have.body(\"Forbidden\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{token}}",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n \"isPrivate\": true,\n \"name\": \"Some Cool Playlist\",\n \"songList\": [\n    {\n        \"id\": 3,\n        \"title\": \"Teamtet\",\n        \"artist\": \"Iggy Azalea\",\n        \"label\": \"null\",\n        \"released\": \"2016\"\n    },\n    {\n        \"id\": 4,\n        \"title\": \"Ghostbusters (I'm not a fraid)\",\n        \"artist\": \"Fall Out Boy, Missy Elliott\",\n        \"label\": \"Ghostbusters\",\n        \"released\": \"2016\"\n    }\n ]\n } "
+				},
+				"url": {
+					"raw": "http://localhost:8080/songs/playlists/3",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"songs",
+						"playlists",
+						"3"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "DELETE playlist which was created before",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Body matches string\", function () {",
+							"    pm.expect(pm.response.text()).to.include(\"Songlist with id\");",
+							"});",
+							"",
+							"pm.test(\"Body matches string\", function () {",
+							"    pm.expect(pm.response.text()).to.include(\"was successfully deleted!\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{createdSonglist}}",
+					"host": [
+						"{{createdSonglist}}"
+					],
+					"query": [
+						{
+							"key": "",
+							"value": null,
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "DELETE not exisitng playlist NOT FOUND: 404",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 404\", function () {",
+							"    pm.response.to.have.status(404);",
+							"});",
+							"pm.test(\"Body matches string\", function () {",
+							"    pm.expect(pm.response.text()).to.include(\"List doesnt exist\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8083/songs/playlists/6",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8083",
+					"path": [
+						"songs",
+						"playlists",
+						"6"
+					],
+					"query": [
+						{
+							"key": "",
+							"value": null,
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "DELETE playlist UNATHORIZED: 401",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 401\", function () {",
+							"    pm.response.to.have.status(401);",
+							"});",
+							"",
+							"pm.test(\"Body matches string\", function () {",
+							"    pm.expect(pm.response.text()).to.include(\"Unathorized\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "token",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{createdSonglist}}",
+					"host": [
+						"{{createdSonglist}}"
+					],
+					"query": [
+						{
+							"key": "",
+							"value": null,
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET a all lyrics from one artist",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Status code name has string\", function () {",
+							"    pm.response.to.have.status(\"OK\");",
+							"});",
+							"",
+							"pm.test(\"Content-Type header is present\", () => {",
+							"  pm.response.to.have.header(\"Content-Type\");",
+							"});",
+							"",
+							"pm.test(\"Content-Type header is application/json\", () => {",
+							"  pm.expect(pm.response.headers.get('Content-Type')).to.eql('application/json');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{token}}",
+						"type": "text",
+						"disabled": true
+					},
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"artist\": \"Eminem\",\n    \"title\": \"Venom\",\n    \"text\": \"TROLOLO got a song filled with shit for the strong-willed\\n When the world gives you a raw deal\\n Sets you off 'til you scream\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/lyrics/Eminem/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"lyrics",
+						"Eminem",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET a specified lyric from the artist",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Status code name has string\", function () {",
+							"    pm.response.to.have.status(\"OK\");",
+							"});",
+							"",
+							"pm.test(\"Content-Type header is present\", () => {",
+							"  pm.response.to.have.header(\"Content-Type\");",
+							"});",
+							"",
+							"pm.test(\"Content-Type header is application/json\", () => {",
+							"  pm.expect(pm.response.headers.get('Content-Type')).to.eql('application/json');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8080/lyrics/Eminem/Mockingbird",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"lyrics",
+						"Eminem",
+						"Mockingbird"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "UPLOAD lyric",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"pm.test(\"Body is correct\", function () {",
+							"    pm.response.to.have.body(\"Lyric was posted successfully\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"artist\": \"Skriptonit\",\n    \"title\": \"Someone\",\n    \"text\": \"Bla bla bla Trololo\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/lyrics",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"lyrics"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "UPLOAD lyric UNAUTHORIZED: 401",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 401\", function () {",
+							"    pm.response.to.have.status(401);",
+							"});",
+							"",
+							"pm.test(\"Body is correct\", function () {",
+							"    pm.response.to.have.body(\"Unauthorized\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "token",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"artist\": \"Skriptonit\",\n    \"title\": \"Someone\",\n    \"text\": \"Bla bla bla Trololo\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/lyrics",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"lyrics"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "DELETE lyric",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 204\", function () {",
+							"    pm.response.to.have.status(204);",
+							"});",
+							"pm.test(\"Status code name has string\", function () {",
+							"    pm.response.to.have.status(\"No Content\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8080/lyrics/Skriptonit/Someone",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"lyrics",
+						"Skriptonit",
+						"Someone"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "DELETE not existing lyric NOT FOUND: 404",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 204\", function () {",
+							"    pm.response.to.have.status(404);",
+							"});",
+							"pm.test(\"Status code name has string\", function () {",
+							"    pm.response.to.have.status(\"Not Found\");",
+							"});",
+							"pm.test(\"Body matches string\", function () {",
+							"    pm.expect(pm.response.text()).to.include(\"Song was not found\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8080/lyrics/Skriptonit/Some",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"lyrics",
+						"Skriptonit",
+						"Some"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "DELETE lyric UNAUTHORIZED: 401",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 401\", function () {",
+							"    pm.response.to.have.status(401);",
+							"});",
+							"pm.test(\"Body is correct\", function () {",
+							"    pm.response.to.have.body(\"Unathorized\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "L08eGpJHki",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8080/lyrics/Skriptonit/Someone",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"lyrics",
+						"Skriptonit",
+						"Someone"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
